@@ -1,11 +1,3 @@
-/*
- * 👋 Hello! This is an ml5.js example made and shared with ❤️.
- * Learn more about the ml5.js project: https://ml5js.org/
- * ml5.js license and Code of Conduct: https://github.com/ml5js/ml5-next-gen/blob/main/LICENSE.md
- *
- * This example demonstrates drawing skeletons on poses for the MoveNet model.
- */
-
 let video;
 let bodyPose;
 let poses = [];
@@ -32,9 +24,9 @@ function setup() {
 
 function draw() {
   // Draw the webcam video
-  image(video, 0, 0, width, height);
+//   image(video, 0, 0, width, height);
 
-  // Draw the skeleton connections
+  // Draw the skeleton connections as bones
   for (let i = 0; i < poses.length; i++) {
     let pose = poses[i];
     for (let j = 0; j < connections.length; j++) {
@@ -42,25 +34,27 @@ function draw() {
       let pointBIndex = connections[j][1];
       let pointA = pose.keypoints[pointAIndex];
       let pointB = pose.keypoints[pointBIndex];
-      // Only draw a line if both points are confident enough
+
+      // Only draw the "bone" if both points are confident enough
       if (pointA.confidence > 0.1 && pointB.confidence > 0.1) {
-        stroke(255, 0, 0);
-        strokeWeight(2);
+        // Draw a thicker line for the bones
+        stroke(0, 211, 0);  // White color for bones
+        strokeWeight(8);        // Thicker line to resemble a bone
         line(pointA.x, pointA.y, pointB.x, pointB.y);
       }
     }
   }
 
-  // Draw all the tracked landmark points
+  // Draw circular joints at each keypoint
   for (let i = 0; i < poses.length; i++) {
     let pose = poses[i];
     for (let j = 0; j < pose.keypoints.length; j++) {
       let keypoint = pose.keypoints[j];
       // Only draw a circle if the keypoint's confidence is bigger than 0.1
       if (keypoint.confidence > 0.1) {
-        fill(0, 255, 0);
+        fill(0, 255, 0); // Green color for joints
         noStroke();
-        circle(keypoint.x, keypoint.y, 10);
+        ellipse(keypoint.x, keypoint.y, 15); // Bigger circles to represent joints
       }
     }
   }
