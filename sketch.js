@@ -5,6 +5,7 @@ let poseHistory = []; // stores pose history
 let connections;
 // let prevNosePosition = { x: 0, y: 0 };
 let lastLogTime = 0;
+let loggedPositions = [];
 
 function preload() {
   // load model
@@ -45,8 +46,8 @@ function draw() {
   }
 }
 
-// Function to draw the skeleton with specified opacity
 // function drawSkeleton(poses, opacity) {
+//   let currentTime = millis(); // Get the current time in milliseconds
 
 //   for (let i = 0; i < poses.length; i++) {
 //     let pose = poses[i];
@@ -54,7 +55,6 @@ function draw() {
 //       let pointAIndex = connections[j][0];
 //       let pointBIndex = connections[j][1];
 //       let pointA = pose.keypoints[pointAIndex];
-//       // console.log(pointA);
 //       let pointB = pose.keypoints[pointBIndex];
 
 //       // Only draw the "bone" if both points are confident enough
@@ -63,6 +63,12 @@ function draw() {
 //         stroke(0, 211, 0, opacity); // Green bones with variable opacity
 //         strokeWeight(8); // Thicker line to resemble a bone
 //         line(pointA.x, pointA.y, pointB.x, pointB.y);
+
+//         // Log pointA every 1 second (1000 milliseconds)
+//         if (currentTime - lastLogTime >= 1000) {
+//           console.log(`pointA: x = ${pointA.x}, y = ${pointA.y}`);
+//           lastLogTime = currentTime; // Update the last log time
+//         }
 //       }
 //     }
 //   }
@@ -81,6 +87,8 @@ function draw() {
 //     }
 //   }
 // }
+// Callback function for when bodyPose outputs data
+
 function drawSkeleton(poses, opacity) {
   let currentTime = millis(); // Get the current time in milliseconds
 
@@ -100,8 +108,9 @@ function drawSkeleton(poses, opacity) {
         line(pointA.x, pointA.y, pointB.x, pointB.y);
 
         // Log pointA every 1 second (1000 milliseconds)
-        if (currentTime - lastLogTime >= 1000) {
+        if (currentTime - lastLogTime >= 500) {
           console.log(`pointA: x = ${pointA.x}, y = ${pointA.y}`);
+          loggedPositions.push({ x: pointA.x, y: pointA.y }); // Store the logged position
           lastLogTime = currentTime; // Update the last log time
         }
       }
@@ -121,8 +130,21 @@ function drawSkeleton(poses, opacity) {
       }
     }
   }
+
+  // Draw blue dots at the logged positions
+  drawLoggedPositions();
 }
-// Callback function for when bodyPose outputs data
+
+// Function to draw blue dots at the stored positions
+function drawLoggedPositions() {
+  fill(0, 0, 255); // Blue color
+  noStroke();
+  for (let i = 0; i < loggedPositions.length; i++) {
+    let pos = loggedPositions[i];
+    ellipse(pos.x, pos.y, 10); // Draw blue dot
+  }
+}
+
 function gotPoses(results) {
   // Save the output to the poses variable
   poses = results;
