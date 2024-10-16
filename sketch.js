@@ -3,37 +3,42 @@ let bodyPose;
 let poses = [];
 let poseHistory = []; // stores pose history
 let connections;
-// let prevNosePosition = { x: 0, y: 0 };
 let lastLogTime = 0;
 let loggedPositions = [];
 let skullImage;
 
 function preload() {
-  // load model
+  // Load the bodyPose model and skull image
   bodyPose = ml5.bodyPose();
   skullImage = loadImage('skull.png');
-
 }
 
 function setup() {
-  createCanvas(640, 480);
+  // let canvas = createCanvas(640, 480);
+  let canvas = createCanvas(windowWidth, windowHeight); // Create a full-screen canvas
+  createCanvas(windowWidth, windowHeight);
 
-  // create vid and hide it
+  canvas.position(0, 0); // Ensure the canvas is positioned at the top left
+
+  // Create a video capture and hide it
   video = createCapture(VIDEO);
-  video.size(640, 480);
+  video.size(windowWidth, windowHeight);
   video.hide();
 
-  // detect pose from webcam
+  // Start detecting the pose from the webcam
   bodyPose.detectStart(video, gotPoses);
-  // get the skeleton connection info
+
+  // Get the skeleton connection info
   connections = bodyPose.getSkeleton();
 }
 
 function draw() {
-  background(0); // black bachground
+  background(0); // black background
+
   // Draw the current pose first
   drawSkeleton(poses, 255); // current pose w/full opacity
-  // draw older poses with decreasing opacity
+
+  // Draw older poses with decreasing opacity
   for (let i = 0; i < poseHistory.length; i++) {
     let age = poseHistory.length - i; // older the frame, lower the opacity
     let opacity = map(age, 0, poseHistory.length, 255, 0); // Fade from full to 50 opacity
@@ -47,8 +52,19 @@ function draw() {
   if (poseHistory.length > 30) {
     poseHistory.shift(); // Limit history to last 30 frames
   }
+
+  // Toggle fullscreen when the 'f' key is pressed
+  if (keyIsPressed && key === 'f') {
+    let fs = fullscreen();
+    fullscreen(!fs); // Toggle fullscreen mode
+    resizeCanvas(windowWidth, windowHeight); // Resize canvas when entering/exiting fullscreen
+  }
 }
 
+// Automatically resize the canvas when the window is resized
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight); // Adjust canvas size
+}
 
 function drawSkeleton(poses, opacity) {
   let currentTime = millis(); // Get the current time in milliseconds
@@ -97,23 +113,17 @@ function drawSkeleton(poses, opacity) {
 }
 
 // Function to draw skull images at the stored positions
-// function drawLoggedPositions() {
-//   for (let i = 0; i < loggedPositions.length; i++) {
-//     let pos = loggedPositions[i];
-//     image(skullImage, pos.x - skullImage.width / 2, pos.y - skullImage.height / 2); // Draw skull image centered at the logged position
-//   }
-// }
 function drawLoggedPositions() {
   for (let i = 0; i < loggedPositions.length; i++) {
     let pos = loggedPositions[i];
     let scaledWidth = skullImage.width * 0.3; // Scale down to 30% of original size
     let scaledHeight = skullImage.height * 0.3;
-    image(skullImage, pos.x - scaledWidth / 2, pos.y - scaledHeight / 2, scaledWidth, scaledHeight); // Draw scaled skull image centered at the logged position
+    // image(skullImage, pos.x - scaledWidth / 2, pos.y - scaledHeight / 2, scaledWidth, scaledHeight);
+    // Draw scaled skull image centered at the logged position
   }
 }
+
 function gotPoses(results) {
   // Save the output to the poses variable
   poses = results;
-
-
 }
